@@ -1,4 +1,108 @@
-#GRUPO 6 TALLER 1
+#GRUPO 6 
+#SCRAPPING DATOS GEIH DE LA PAGINA DE GITHUB DEL PROFESOR
+## Librería necesaria
+require(pacman)
+library(pacman)
 
-#PRUEBA NATALIA
-# Hola a todos
+p_load(tidyverse,rvest) 
+
+#Scrapping tabla 1
+set_datos_1<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_1.html"
+set_datos_1_html<-read_html(set_datos_1)
+
+tabla_datos_1<-set_datos_1_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_1)
+
+#Scrapping tabla 2
+set_datos_2<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_2.html"
+set_datos_2_html<-read_html(set_datos_2)
+
+tabla_datos_2<-set_datos_2_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_2)
+
+#Scrapping tabla 3
+set_datos_3<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_3.html"
+set_datos_3_html<-read_html(set_datos_3)
+
+tabla_datos_3<-set_datos_3_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_3)
+
+#Scrapping tabla 4
+set_datos_4<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_4.html"
+set_datos_4_html<-read_html(set_datos_4)
+
+tabla_datos_4<-set_datos_4_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_4)
+
+#Scrapping tabla 5
+set_datos_5<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_5.html"
+set_datos_5_html<-read_html(set_datos_5)
+
+tabla_datos_5<-set_datos_5_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_5)
+
+#Scrapping tabla 6
+set_datos_6<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_5.html"
+set_datos_6_html<-read_html(set_datos_6)
+
+tabla_datos_6<-set_datos_6_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_6)
+
+#Scrapping tabla 7
+set_datos_7<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_7.html"
+set_datos_7_html<-read_html(set_datos_6)
+
+tabla_datos_7<-set_datos_7_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_7)
+
+#Scrapping tabla 8
+set_datos_8<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_8.html"
+set_datos_8_html<-read_html(set_datos_8)
+
+tabla_datos_8<-set_datos_8_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_8)
+
+#Scrapping tabla 9
+set_datos_9<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_9.html"
+set_datos_9_html<-read_html(set_datos_9)
+
+tabla_datos_9<-set_datos_9_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_9)
+
+#Scrapping tabla 10
+set_datos_10<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_10.html"
+set_datos_10_html<-read_html(set_datos_10)
+
+tabla_datos_10<-set_datos_10_html%>%
+  html_table()%>%
+  as.data.frame()
+
+view(tabla_datos_10)
+
