@@ -106,3 +106,6 @@ tabla_datos_10<-set_datos_10_html%>%
 
 view(tabla_datos_10)
 
+#Uniendo tablas de datos
+
+base_todo <- rbind.data.frame(tabla_datos_1, tabla_datos_2, tabla_datos_3, tabla_datos_4, tabla_datos_5, tabla_datos_6, tabla_datos_7, tabla_datos_8, tabla_datos_9, tabla_datos_10)
