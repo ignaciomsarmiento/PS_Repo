@@ -4,7 +4,7 @@
 require(pacman)
 library(pacman)
 
-p_load(tidyverse,rvest) 
+p_load(tidyverse,rvest,skimr) 
 
 #Scrapping tabla 1
 set_datos_1<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_1.html"
