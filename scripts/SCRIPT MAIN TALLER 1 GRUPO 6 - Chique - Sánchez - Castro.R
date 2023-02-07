@@ -4,7 +4,7 @@
 require(pacman)
 library(pacman)
 
-p_load(tidyverse,rvest,skimr) 
+p_load(tidyverse,rvest,skimr,boot) 
 
 #Scrapping tabla 1
 set_datos_1<-"https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_1.html"
@@ -111,8 +111,6 @@ base_nueva<-base_nueva %>%
 
 # PREGUNTA 3 -------------- Age-wage profile --------------------
 
-library(boot)
-
 # Reestructurando la base de datos para la pregunta 3
 
 df3<-base_todo %>%
@@ -139,6 +137,14 @@ head(df3)
 
 summary(df3$y_salary_m_hu)
 
+stargazer(df3, type = "text", digits = 1)
+
+stargazer(df3[c("y_salary_m_hu", "age")], header = FALSE, type = "text", 
+          title = "Estadisticas Descriptivas", digits = 1,
+          covariate.labels = c("Salario", "Edad"),
+          summary.stat = c("n", "min", "p25", "median", "mean","p75", "sd", "max")
+)
+
 ggplot(data = df3, mapping = aes(x = age, y= lnw))+
   geom_point(col = "#A80000" , size = 0.9)+
   labs(x = "edad",
@@ -149,7 +155,7 @@ ggplot(data = df3, mapping = aes(x = age, y= lnw))+
 
 ggplot(data = df3)+
   geom_histogram(mapping = aes(x=lnw),col= "#A80000", fill = "#A80000")+
-  labs(x="logaritmo del ingreso",
+  labs(x="logaritmo del salario",
        y="frecuencia",
        title = "Distribucion del salario")+
   theme_bw() +
@@ -176,11 +182,15 @@ IQR(x=df3$y_salary_m_hu)
 # i) Regresion 
 
 reglnw <- lm(lnw ~ age + age2, data = df3)
-summary(reglnw)
 
-stargazer(reglnw, type = "text")
+stargazer(reglnw, type = "text",
+          title = "Resultados de la Regresion",
+          aling = TRUE,
+          dep.var.labels = "Logaritmo del Salario",
+          covariate.labels = c("edad", "edad cuadrado")
+)
 
-df3$lnw_hat = p#A80000ict(reglnw)
+df3$lnw_hat = predict(reglnw)
 
 ### plot of the estimated age-earning profile
 
@@ -203,7 +213,7 @@ ggplot(summ) +
     color = "#003399", size = 1
   ) +
   labs(
-    title = "Logaritmo del salario por edad",
+    title = "Logaritmo del Salario por Edad",
     x = "edad",
     y = "logaritmo del salario"
   ) +
