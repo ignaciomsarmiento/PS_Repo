@@ -108,6 +108,154 @@ base_nueva<-base_nueva %>%
 base_nueva<-base_nueva %>%
   mutate(female = if_else(sex == 0, 1, 0) )
 
+
+# PREGUNTA 3 -------------- Age-wage profile --------------------
+
+library(boot)
+
+# Reestructurando la base de datos para la pregunta 3
+
+df3<-base_todo %>%
+  select(y_salary_m_hu,age)
+
+# Limpiando la base de datos
+
+df3 <- df3 %>%
+  drop_na()
+
+# Base de datos de personas mayores de 18 annos
+
+df3 <- df3 %>%
+  filter(age >= 18)
+
+# Transformando variables
+
+df3 <- df3 %>%
+  mutate(age2 = age^2, lnw =log(y_salary_m_hu))
+
+head(df3)
+
+# Analisis descriptivo y grafico
+
+summary(df3$y_salary_m_hu)
+
+ggplot(data = df3, mapping = aes(x = age, y= lnw))+
+  geom_point(col = "#A80000" , size = 0.9)+
+  labs(x = "edad",
+       y = "logaritmo del salario por hora",
+       title = "Edad y Salario")+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = df3)+
+  geom_histogram(mapping = aes(x=lnw),col= "#A80000", fill = "#A80000")+
+  labs(x="logaritmo del ingreso",
+       y="frecuencia",
+       title = "Distribucion del salario")+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = df3)+
+  geom_boxplot(mapping = aes(x=y_salary_m_hu), fill = "#A80000", alpha =0.5)+
+  labs(x="salario",
+       title = "Box Plot")+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+ggplot(data = df3)+
+  geom_boxplot(mapping = aes(x=lnw), fill = "#A80000", alpha =0.5)+
+  labs(x="logaritmo del salario",
+       title = "Box Plot")+
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+quantile(x=df3$y_salary_m_hu)
+
+IQR(x=df3$y_salary_m_hu)
+
+# i) Regresion 
+
+reglnw <- lm(lnw ~ age + age2, data = df3)
+summary(reglnw)
+
+stargazer(reglnw, type = "text")
+
+df3$lnw_hat = p#A80000ict(reglnw)
+
+### plot of the estimated age-earning profile
+
+summ = df3 %>%
+  group_by(
+    age, age2
+  ) %>%
+  summarize(
+    mean_lnw = mean(lnw),
+    lnw_hat_reg = mean(lnw_hat), .groups = "drop"
+  )
+
+ggplot(summ) +
+  geom_point(
+    aes(x = age, y = mean_lnw),
+    color = "#A80000", size = 2
+  ) +
+  geom_line(
+    aes(x = age, y = lnw_hat_reg),
+    color = "#003399", size = 1
+  ) +
+  labs(
+    title = "Logaritmo del salario por edad",
+    x = "edad",
+    y = "logaritmo del salario"
+  ) +
+  theme_bw() +
+  theme(plot.title = element_text(hjust = 0.5))
+
+### Bootstrap de "peak age"
+
+reglnw <- lm(lnw ~ age + age2, data = df3)
+stargazer(reglnw,type = "text")
+
+# i) Obtenemos los coeficientes de la regresion
+
+coefs <- reglnw$coefficients
+coefs
+
+# ii) Extrayendo los coeficientes como escalar
+
+b0 <- coefs[1]
+b1 <- coefs[2]
+b2 <- coefs[3]
+
+# Calculo del "peak age"
+
+peak_age <- (-b1/(2*b2))
+peak_age
+
+# Calculo de errores estandar
+
+eta_reglnw_fn <- function(data, index){
+  coefs <- lm(lnw ~ age + age2, data, subset = index)$coefficients
+  b1 <- coefs[2]
+  b2 <- coefs[3]
+  peak_age <- (-b1/(2*b2))
+  return(peak_age)
+}
+
+eta_reglnw_fn(df3,1:nrow(df3))
+
+# Implementamos boot
+
+resultados <- boot(df3, eta_reglnw_fn, R=1000)
+resultados
+
+# Intervalo de confianza
+
+boot.ci(resultados, type = c("norm", "basic"))
+
+names(resultados)
+hist(resultados$t)
+qqnorm(resultados$t, datax = T)
+
 #PROBLEMA 4
 
 ##a. Estimación incondicional logaritmo salario vs género
