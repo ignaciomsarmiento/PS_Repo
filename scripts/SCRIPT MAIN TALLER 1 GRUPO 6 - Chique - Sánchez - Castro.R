@@ -266,7 +266,7 @@ names(resultados)
 hist(resultados$t)
 qqnorm(resultados$t, datax = T)
 
-#PROBLEMA 4
+#PROBLEMA 4 
 
 ##a. Estimación incondicional logaritmo salario vs género
 base_nueva<-base_nueva %>%
