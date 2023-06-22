@@ -39,15 +39,15 @@ base_geih2018 <- read_excel("Base_unida")
 
 # Determino las variables de interés y elimino las demás
 names(base_geih2018)
-variables <- base_geih2018 %>%
+GEIH <- base_geih2018 %>%
   select("age", "sex", "maxEducLevel", "pea", "wap", "p6240", "relab",
          "sizeFirm", "dsi",	"estrato1", "formal", "p6050", "p6426",
          "totalHoursWorked", "y_bonificaciones_m", "y_especie_m",
          "y_gananciaIndep_m", "y_gananciaIndep_m_hu", "y_salary_m",
          "y_salary_m_hu", "y_vivienda_m", "directorio", "dominio","fex_c",
-         "fex_dpto", "fweight", "depto", "clase", "secuencia_p","p6210s1",
-         "p7040", "cotPension", "regSalud", "cuentaPropia", "impa", "isa",
-         "impaes", "isaes", "ingtot") %>%
+         "fex_dpto", "fweight", "depto", "clase", "secuencia_p", "orden",
+         "p6210s1","p7040", "cotPension", "regSalud", "cuentaPropia", "impa",
+         "isa", "impaes", "isaes", "ingtot") %>%
   
   rename(edad ="age",
          sexo = "sex", #1=hombre
@@ -75,9 +75,8 @@ variables <- base_geih2018 %>%
          salud = "regSalud",
          cuenta_propia = "cuentaPropia") %>% 
   
-
-  mutate(jefe_hogar = ifelse(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
-         urban = ifelse(clase == 1, 1, 0), # dummy para cabecera municipal =1
+  mutate(jefe_hogar = if_else(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
+         urban = if_else(clase == 1, 1, 0), # dummy para cabecera municipal =1
          segundo_empleo = ifelse(p7040 ==1,1,0), #dummy para segundo empleo = 1
          mujer = ((sexo*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
          impa1 = if_else(is.na(impa), 0, impa), #ingreso monetario observado primera actividad NA=0
@@ -88,12 +87,18 @@ variables <- base_geih2018 %>%
          inglabes = impa2 + isa2, #suma ingreso laboral estimado (faltantes, extremos y ceros inconsistentes)
          inglab = if_else(inglab == 0, inglabes, inglab), #consolidamos ingreso laboral estimado para valores en 0
          ingtot =if_else(is.na(ingtot), 0, ingtot), #ingreso total NA=0
-         ingnolab = ingtot - inglab) %>% #identificacion de ingreso no laboral
-  
+         ingnolab = ingtot - inglab, #identificacion de ingreso no laboral
+         inglab = if_else(inglab == 0, 0.0001, inglab), # correcion de 0 para calculo de logaritmo
+         salario_hora = inglab/t_horas_trabajadas,# salario por horal
+         log_salario_hora = log(salario_hora)) %>% # log salario por hora
+           
+  select(-fex_c, -fex_dpto, -fweight, -p7040, -impa, -isa, -impaes, -isaes,
+         -impa1, -impa2, -isa1, -isa2) %>% 
+         
   filter (edad >= 18, poblacion_economicamente_activa == 1)
 
 
-glimpse(variables)
+glimpse(GEIH)
 
 ########### Puntos a tener en cuenta para la limpieza de datos #################
 # Las variables de interés que he observado hasta el momento son: "numero_de_base" "...2"
