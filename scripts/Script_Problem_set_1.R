@@ -39,20 +39,37 @@ base_geih2018 <- read_excel("Base_unida")
 
 # Determino las variables de interés y elimino las demás
 names(base_geih2018)
-variables <- base_geih2018[, c("age",	"clase",	"depto",	"directorio",	"dominio",
-                               "dsi",	"estrato1",	"fex_c",	"fex_dpto",	"formal",
-                               "fweight",	"p6050",	"p6210",	"maxEducLevel",
-                               "p6240",	"p6426",	"p6630s6",	"p6630s6a1",
-                               "p7310",	"p7495",	"p7500s1",	"p7500s1a1",
-                               "p7500s2",	"p7500s2a1",	"p7500s3",	"p7500s3a1",
-                               "p7505",	"pet",	"relab",	"secuencia_p",	"sex",
-                               "sizeFirm",	"totalHoursWor~d",	"wap",
-                               "y_accidentes_m",	"y_bonificacio~m",
-                               "y_especie_m",	"y_gananciaInd~u",
-                               "y_gananciaN~o_m",	"y_salary_m",	"y_salary_m_hu",
-                               "y_vivienda_m",
-)]
-
+variables <- base_geih2018 %>%
+  select("age", "sex", "maxEducLevel", "pea", "pet", "wap", "p6240", "relab",
+          "sizeFirm", "dsi",	"estrato1", "formal", "p6050",	"p6210", 	"p6426",
+            "totalHoursWorked", "y_bonificaciones_m", "y_especie_m",
+              "y_gananciaIndep_m", "y_gananciaIndep_m_hu", "y_salary_m",
+                "y_salary_m_hu", "y_vivienda_m", "directorio", "dominio",
+                  "fex_c", "fex_dpto", "fweight", "depto", "clase",
+                    "secuencia_p") %>%
+  rename(edad ="age",
+         sexo = "sex",
+         educacion_alcanzada = "maxEducLevel",
+         poblacion_economicamente_activa = "pea",
+         poblacion_edad_trabajar = "pet",
+         Working_age = "wap",
+         ocupacion = "p6240",
+         tipo_ocupacion = "relab",
+         tamaño_empresa = "sizeFirm",
+         empleado_desempleado = "dsi",
+         estrato = "estrato1",
+         formal_informal = "formal",
+         parentesco_jhogar = "p6050",	
+         nivel_educativo = "p6210",
+         tiempo_trabajando = "p6426",
+         t_horas_trabajadas = "totalHoursWorked",
+         ingreso_mensual = "y_bonificaciones_m",
+         ingreso_mensual_especie = "y_especie_m",
+         ingreso_mensual_independientes = "y_gananciaIndep_m",
+         ingreso_hora_independiente = "y_gananciaIndep_m_hu",
+         salario_nominal_mensual = "y_salary_m",
+         salario_real_hora = "y_salary_m_hu",
+         ingreso_hogarmes_nominal = "y_vivienda_m")
 
 ########### Puntos a tener en cuenta para la limpieza de datos #################
 # Las variables de interés que he observado hasta el momento son: "numero_de_base" "...2"
