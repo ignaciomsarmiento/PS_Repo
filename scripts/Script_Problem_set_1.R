@@ -12,3 +12,12 @@ p_load(ggplot2, rio, tidyverse, skimr, caret, rvest, magrittr) # Cargar varios p
 table1 <- read_html("https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_1.html") %>%
   html_table()
 head(table1)
+as.data.frame(table1)
+
+# creo un loop para descargar las 10 bases de datos
+url_base <- "https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_"
+for (i in 1:10) {
+  url <- paste0(url_base, i, ".html") 
+  read_html(url)
+}
+head(url)
