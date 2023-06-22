@@ -41,25 +41,27 @@ base_geih2018 <- read_excel("Base_unida")
 names(base_geih2018)
 variables <- base_geih2018 %>%
   select("age", "sex", "maxEducLevel", "pea", "wap", "p6240", "relab",
-          "sizeFirm", "dsi",	"estrato1", "formal", "p6050", "p6426",
-            "totalHoursWorked", "y_bonificaciones_m", "y_especie_m",
-              "y_gananciaIndep_m", "y_gananciaIndep_m_hu", "y_salary_m",
-                "y_salary_m_hu", "y_vivienda_m", "directorio", "dominio",
-                  "fex_c", "fex_dpto", "fweight", "depto", "clase",
-                    "secuencia_p") %>%
+         "sizeFirm", "dsi",	"estrato1", "formal", "p6050", "p6426",
+         "totalHoursWorked", "y_bonificaciones_m", "y_especie_m",
+         "y_gananciaIndep_m", "y_gananciaIndep_m_hu", "y_salary_m",
+         "y_salary_m_hu", "y_vivienda_m", "directorio", "dominio","fex_c",
+         "fex_dpto", "fweight", "depto", "clase", "secuencia_p","p6210s1",
+         "p7040", "cotPension", "regSalud", "cuentaPropia", "impa", "isa",
+         "impaes", "isaes", "ingtot") %>%
+  
   rename(edad ="age",
-         sexo = "sex", #
+         sexo = "sex", #1=hombre
          educacion_alcanzada = "maxEducLevel", # omitimos nivel_educativo = "p6210" ya que maxEduclevel tiene la información de esta variable
          poblacion_economicamente_activa = "pea",
-         Working_age = "wap", # Omitimos "pet" ya que todos los valores dan 1
+         poblacion_edad_trabajar = "wap", # Omitimos "pet" ya que todos los valores dan 1
          ocupacion = "p6240",
-         tipo_ocupacion = "relab",
+         relacion_laboral = "relab",
          tamaño_empresa = "sizeFirm", # maybe funciona
-         empleado_desempleado = "dsi",
+         empleado_desempleado = "dsi", # 1 = desempleado
          estrato = "estrato1",
-         formal_informal = "formal",
-         parentesco_jhogar = "p6050",	#
-         tiempo_trabajando = "p6426", # maybe funciona (la variable está en meses)
+         formal_informal = "formal", # 1 = formal
+         parentesco_jhogar = "p6050",
+         tiempo_trabajando = "p6426", # la variable está en meses
          t_horas_trabajadas = "totalHoursWorked",
          ingreso_mensual = "y_bonificaciones_m", # revisar estadísticas si son coherentes
          ingreso_mensual_especie = "y_especie_m",
@@ -67,7 +69,29 @@ variables <- base_geih2018 %>%
          ingreso_hora_independiente = "y_gananciaIndep_m_hu", # revisar estadísticas si son coherentes
          salario_nominal_mensual = "y_salary_m", # revisar estadísticas si son coherentes
          salario_real_hora = "y_salary_m_hu", # revisar estadísticas si son coherentes
-         ingreso_hogarmes_nominal = "y_vivienda_m") # revisar estadísticas si son coherentes
+         ingreso_hogarmes_nominal = "y_vivienda_m",# revisar estadísticas si son coherentes
+         grado_alcanzado = "p6210s1",
+         pension = "cotPension",
+         salud = "regSalud",
+         cuenta_propia = "cuentaPropia") %>% 
+  
+
+  mutate(jefe_hogar = ifelse(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
+         urban = ifelse(clase == 1, 1, 0), # dummy para cabecera municipal =1
+         segundo_empleo = ifelse(p7040 ==1,1,0), #dummy para segundo empleo = 1
+         mujer = ((sexo*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
+         impa1 = if_else(is.na(impa), 0, impa), #ingreso monetario observado primera actividad NA=0
+         isa1 = if_else(is.na(isa), 0, isa), #ingreso monetario observado segunda actividad NA=0
+         impa2 = if_else(is.na(impaes), 0, impaes),#ingreso monetario estimado primera actividad NA=0
+         isa2 = if_else(is.na(isaes), 0, isaes), #ingreso monetario estimado segunda actividad NA=0
+         inglab = impa1 + isa1, #suma ingreso laboral observado
+         inglabes = impa2 + isa2, #suma ingreso laboral estimado (faltantes, extremos y ceros inconsistentes)
+         inglab = if_else(inglab == 0, inglabes, inglab), #consolidamos ingreso laboral estimado para valores en 0
+         ingtot =if_else(is.na(ingtot), 0, ingtot), #ingreso total NA=0
+         ingnolab = ingtot - inglab) %>% #identificacion de ingreso no laboral
+  
+  filter (edad >= 18, poblacion_economicamente_activa == 1)
+
 
 glimpse(variables)
 
