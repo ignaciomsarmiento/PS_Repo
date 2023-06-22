@@ -80,7 +80,8 @@ glimpse(variables)
 # El valor a usar para el salario será 
 # Primero validar si la persona tenía más integrantes en el hogar y si es así, duplicar el valor del integrante que sí tiene valor de ingreso en los demás integrantes del hogar (aplicar en personas que tengan NA en el salario). ## Evaluar cuántos datos quedarían al final.
 # Evaluar outliers de experiencia, educación, edad, género, por salario
-#
+# Calcular salario por hora y sacarle logaritmo
+
 
 
 
