@@ -71,6 +71,8 @@ variables <- base_geih2018 %>%
          salario_real_hora = "y_salary_m_hu",
          ingreso_hogarmes_nominal = "y_vivienda_m")
 
+glimpse(variables)
+
 ########### Puntos a tener en cuenta para la limpieza de datos #################
 # Las variables de interés que he observado hasta el momento son: "numero_de_base" "...2"
 #"directorio" "secuencia_p" "orden" "clase" "dominio" "mes" "estrato1" "sex" "age"
