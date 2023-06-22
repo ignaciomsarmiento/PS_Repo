@@ -40,36 +40,34 @@ base_geih2018 <- read_excel("Base_unida")
 # Determino las variables de interés y elimino las demás
 names(base_geih2018)
 variables <- base_geih2018 %>%
-  select("age", "sex", "maxEducLevel", "pea", "pet", "wap", "p6240", "relab",
-          "sizeFirm", "dsi",	"estrato1", "formal", "p6050",	"p6210", 	"p6426",
+  select("age", "sex", "maxEducLevel", "pea", "wap", "p6240", "relab",
+          "sizeFirm", "dsi",	"estrato1", "formal", "p6050", "p6426",
             "totalHoursWorked", "y_bonificaciones_m", "y_especie_m",
               "y_gananciaIndep_m", "y_gananciaIndep_m_hu", "y_salary_m",
                 "y_salary_m_hu", "y_vivienda_m", "directorio", "dominio",
                   "fex_c", "fex_dpto", "fweight", "depto", "clase",
                     "secuencia_p") %>%
   rename(edad ="age",
-         sexo = "sex",
-         educacion_alcanzada = "maxEducLevel",
+         sexo = "sex", #
+         educacion_alcanzada = "maxEducLevel", # omitimos nivel_educativo = "p6210" ya que maxEduclevel tiene la información de esta variable
          poblacion_economicamente_activa = "pea",
-         poblacion_edad_trabajar = "pet",
-         Working_age = "wap",
+         Working_age = "wap", # Omitimos "pet" ya que todos los valores dan 1
          ocupacion = "p6240",
          tipo_ocupacion = "relab",
-         tamaño_empresa = "sizeFirm",
+         tamaño_empresa = "sizeFirm", # maybe funciona
          empleado_desempleado = "dsi",
          estrato = "estrato1",
          formal_informal = "formal",
-         parentesco_jhogar = "p6050",	
-         nivel_educativo = "p6210",
-         tiempo_trabajando = "p6426",
+         parentesco_jhogar = "p6050",	#
+         tiempo_trabajando = "p6426", # maybe funciona (la variable está en meses)
          t_horas_trabajadas = "totalHoursWorked",
-         ingreso_mensual = "y_bonificaciones_m",
+         ingreso_mensual = "y_bonificaciones_m", # revisar estadísticas si son coherentes
          ingreso_mensual_especie = "y_especie_m",
-         ingreso_mensual_independientes = "y_gananciaIndep_m",
-         ingreso_hora_independiente = "y_gananciaIndep_m_hu",
-         salario_nominal_mensual = "y_salary_m",
-         salario_real_hora = "y_salary_m_hu",
-         ingreso_hogarmes_nominal = "y_vivienda_m")
+         ingreso_mensual_independientes = "y_gananciaIndep_m", # revisar estadísticas si son coherentes
+         ingreso_hora_independiente = "y_gananciaIndep_m_hu", # revisar estadísticas si son coherentes
+         salario_nominal_mensual = "y_salary_m", # revisar estadísticas si son coherentes
+         salario_real_hora = "y_salary_m_hu", # revisar estadísticas si son coherentes
+         ingreso_hogarmes_nominal = "y_vivienda_m") # revisar estadísticas si son coherentes
 
 glimpse(variables)
 
