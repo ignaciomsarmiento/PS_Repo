@@ -91,9 +91,9 @@ GEIH <- base_geih2018 %>%
          ingtotal =if_else(is.na(ingtot), 0, ingtot), #ingreso total NA=0
          ing_nolaboral = ingtotal - ing_laboral, #identificacion de ingreso no laboral #ESTA VARIABLE NO SERÍA NECESARIA
          ing_laboral = if_else(ing_laboral == 0, 0.0001, ing_laboral), # correcion de 0 para calculo de logaritmo
-         salario_hora = ing_laboral/t_horas_trabajadas,# salario por horal
+         ing_hora = ing_laboral/t_horas_trabajadas,# salario por hora
          ingreso_hogar_hora = (ingreso_hogarmes_nominal/160), # hallo los ingresos del hogar para evaluar la posibilidad de reemplazar missing values con este valor por hogar
-         log_salario_hora = log(salario_hora), # log salario por hora con la variable creada por sergio
+         log_salario_hora = log(ing_hora), # log salario por hora con la variable creada por sergio
          log_salario_hora2 = log(salario_real_hora), # log salario por hora con la variable creada por ignacio
          log_salariohogar_hora = log(ingreso_hogar_hora)) %>% # log salario por hora de los ingresos del hogar
            
@@ -101,6 +101,8 @@ GEIH <- base_geih2018 %>%
          -isa, -impaes, -isaes, -clase) %>%
   
   filter (edad >= 18) # filtro por mayores de edad
+
+rm(base_geih2018)
 
 # Creo los estadísticos descriptivos de las principales variables de interés
 var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora2",
@@ -111,7 +113,7 @@ var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora2",
                          "salario_hora", "salario_real_hora")]
 
 #Propuesta para incluir salario en los datos que no reportan
-Salario1 <- ifelse(GEIH$salario_hora == 0 & GEIH$directorio > 1, GEIH$ingreso_hogar_hora, GEIH$salario_hora) # Primero validar si la persona tenía más integrantes en el hogar y si es así, duplicar el valor del integrante que sí tiene valor de ingreso en los demás integrantes del hogar (aplicar en personas que tengan NA en el salario). ## Evaluar cuántos datos quedarían al final.
+Salario1 <- ifelse(GEIH$salario_hora == 0 & GEIH$secuencia_p > 1, GEIH$ingreso_hogar_hora, GEIH$salario_hora) # Primero validar si la persona tenía más integrantes en el hogar y si es así, duplicar el valor del integrante que sí tiene valor de ingreso en los demás integrantes del hogar (aplicar en personas que tengan NA en el salario). ## Evaluar cuántos datos quedarían al final.
 Salario2 <- ifelse(GEIH$salario_real_hora == 0 & GEIH$directorio > 1, GEIH$ingreso_hogar_hora, GEIH$salario_real_hora)
 
 
