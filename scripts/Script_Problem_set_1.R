@@ -54,12 +54,14 @@ GEIH <- base_geih2018 %>%
   rename(edad ="age",
          sexo = "sex", #1=hombre
          educacion_alcanzada = "maxEducLevel", # omitimos nivel_educativo = "p6210" ya que maxEduclevel tiene la información de esta variable
+        # anos_educacion = "p6210s1",
+        # emprendedor = "cuentaPropia",
          poblacion_economicamente_activa = "pea",
          poblacion_edad_trabajar = "wap", # Omitimos "pet" ya que todos los valores dan 1
          ocupacion = "p6240",
          relacion_laboral = "relab",
          tamaño_empresa = "sizeFirm", # maybe funciona
-         empleado_desempleado = "dsi", # 1 = desempleado
+         desempleado = "dsi", # 1 = desempleado
          estrato = "estrato1",
          formal_informal = "formal", # 1 = formal
          parentesco_jhogar = "p6050",
@@ -81,43 +83,36 @@ GEIH <- base_geih2018 %>%
          urbano = if_else(clase == 1, 1, 0), # dummy para cabecera municipal =1
          segundo_empleo = ifelse(p7040 ==1,1,0), #dummy para segundo empleo = 1
          sexo = ((sexo*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
-         ing_trabajo1_sin_impu = if_else(is.na(impa), 0, impa), #ingreso monetario observado primera actividad NA=0
-         ing_trabajo2_sin_impu = if_else(is.na(isa), 0, isa), #ingreso monetario observado segunda actividad NA=0
-         ing_trabajo1_con_impu = if_else(is.na(impaes), 0, impaes),#ingreso monetario estimado primera actividad NA=0
-         ing_trabajo2_con_impu = if_else(is.na(isaes), 0, isaes), #ingreso monetario estimado segunda actividad NA=0
-         ing_laboral = ing_trabajo1_sin_impu + ing_trabajo2_sin_impu, #suma ingreso laboral observado
-         ing_laboral_estimado = ing_trabajo1_con_impu + ing_trabajo2_con_impu, #suma ingreso laboral estimado (faltantes, extremos y ceros inconsistentes)
-         ing_laboral = if_else(ing_laboral == 0, ing_laboral_estimado, ing_laboral), #consolidamos ingreso laboral estimado para valores en 0
-         ingtotal =if_else(is.na(ingtot), 0, ingtot), #ingreso total NA=0
-         ing_nolaboral = ingtotal - ing_laboral, #identificacion de ingreso no laboral #ESTA VARIABLE NO SERÍA NECESARIA
-         ing_laboral = if_else(ing_laboral == 0, 0.0001, ing_laboral), # correcion de 0 para calculo de logaritmo
-         ing_hora = ing_laboral/t_horas_trabajadas,# salario por hora
-         ingreso_hogar_hora = (ingreso_hogarmes_nominal/160), # hallo los ingresos del hogar para evaluar la posibilidad de reemplazar missing values con este valor por hogar
-         log_salario_hora = log(ing_hora), # log salario por hora con la variable creada por sergio
-         log_salario_hora2 = log(salario_real_hora), # log salario por hora con la variable creada por ignacio
-         log_salariohogar_hora = log(ingreso_hogar_hora)) %>% # log salario por hora de los ingresos del hogar
+         edad2 = edad*edad, # creo edad al cuadrado
+         log_salario_hora = log(salario_real_hora)) %>% # log salario por hora con la variable creada por ignacio # REVISAR AJUSTE DE LA VARIABLE
            
   select(-ingreso_mensual_especie, -salario_nominal_mensual, -p7040, -impa, 
          -isa, -impaes, -isaes, -clase) %>%
   
   filter (edad >= 18) # filtro por mayores de edad
 
+names(GEIH)
 rm(base_geih2018)
 
 # Creo los estadísticos descriptivos de las principales variables de interés
-var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora2",
-                         "log_salariohogar_hora", "edad", "sexo", 
-                         "educacion_alcanzada", "grado_alcanzado", "ocupacion",
-                         "formal_informal", "parentesco_jhogar",
-                         "ingreso_hogarmes_nominal", "ingreso_hogar_hora",
-                         "salario_hora", "salario_real_hora")]
+var_interes <- GEIH [, c("log_salario_hora",
+                         "salario_real_hora", "edad", "sexo", "educacion_alcanzada",
+                         "ocupacion", "formal_informal",  "parentesco_jhogar",
+                         "desempleado")] # "años_educacion", "emprendedor", 
 
 #Propuesta para incluir salario en los datos que no reportan
 Salario1 <- ifelse(GEIH$salario_hora == 0 & GEIH$secuencia_p > 1, GEIH$ingreso_hogar_hora, GEIH$salario_hora) # Primero validar si la persona tenía más integrantes en el hogar y si es así, duplicar el valor del integrante que sí tiene valor de ingreso en los demás integrantes del hogar (aplicar en personas que tengan NA en el salario). ## Evaluar cuántos datos quedarían al final.
 Salario2 <- ifelse(GEIH$salario_real_hora == 0 & GEIH$directorio > 1, GEIH$ingreso_hogar_hora, GEIH$salario_real_hora)
 
+GEIH$Llave <- paste(GEIH$directorio, GEIH$secuencia_p )
 
 skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
+
+# JUSTIFICACIÓN PARA QUITAR LOS NA DE LA MUESTRA
+sum(GEIH$desempleado != 0 & is.na(GEIH$salario_real_hora))
+sum(GEIH$desempleado == 0 & is.na(GEIH$salario_real_hora))
+sum(GEIH$secuencia_p == 1 & is.na(GEIH$salario_real_hora))
+
 
 ########### Puntos a tener en cuenta para la limpieza de datos #################
 # Evaluar outliers de experiencia, educación, edad, género, por salario
