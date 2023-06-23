@@ -10,15 +10,18 @@
 rm(list = ls()) # Limpiar Rstudio
 options(scipen = 20,  digits=3) # establezco la notacion científica y el número de decimales
 require(pacman)
-p_load(ggplot2, rio, tidyverse, skimr, caret, rvest, magrittr, openxlsx, rstudioapi, readxl, openxlsx) # Cargo varios paquetes al tiempo
+p_load(ggplot2, rio, tidyverse, skimr, caret, rvest, magrittr, openxlsx,
+       rstudioapi, readxl, openxlsx, stargazer) # Cargo varios paquetes al tiempo
 
 # Determino el directorio de trabajo
 escritorio <- rstudioapi::getActiveDocumentContext()$path #accedo a la ruta del archivo
 carpeta <- dirname(escritorio) # extraigo el nombre de la carpeta donde está guardado el archivo
 setwd(carpeta) # Establezco el directorio de trabajo como aquel donde está guardado el archivo
+getwd() # verifico el directorio
 rm(carpeta, escritorio) # Limpio el ambiente
 
-# descargo el contenido de las 10 páginas (OMITO ESTAS LÍNEAS PORQUE IMPORTÉ EL ARCHIVO YA QUE ASÍ ES MENOS PESADO. AL FINAL, VOLVERÉ A ACTIVAR ESTAS LÍNEAS)
+#(OMITO ESTAS LÍNEAS PORQUE IMPORTÉ EL ARCHIVO YA QUE ASÍ ES MENOS PESADO. AL FINAL, VOLVERÉ A ACTIVAR ESTAS LÍNEAS)
+# descargo el contenido de las 10 páginas 
 #tablas_html <- vector("list", 10) # creo una lista para guardar los enlaces
 #for (i in 1:10) {
 #  urls <- paste0("https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_", i, ".html")
@@ -38,7 +41,6 @@ rm(carpeta, escritorio) # Limpio el ambiente
 base_geih2018 <- read_excel("Base_unida")
 
 # Determino las variables de interés y elimino las demás
-names(base_geih2018)
 GEIH <- base_geih2018 %>%
   select("age", "sex", "maxEducLevel", "pea", "wap", "p6240", "relab",
          "sizeFirm", "dsi",	"estrato1", "formal", "p6050", "p6426",
@@ -75,53 +77,48 @@ GEIH <- base_geih2018 %>%
          salud = "regSalud",
          cuenta_propia = "cuentaPropia") %>% 
   
-  mutate(jefe_hogar = if_else(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
-         urban = if_else(clase == 1, 1, 0), # dummy para cabecera municipal =1
+  mutate(parentesco_jhogar = if_else(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
+         urbano = if_else(clase == 1, 1, 0), # dummy para cabecera municipal =1
          segundo_empleo = ifelse(p7040 ==1,1,0), #dummy para segundo empleo = 1
-         mujer = ((sexo*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
-         impa1 = if_else(is.na(impa), 0, impa), #ingreso monetario observado primera actividad NA=0
-         isa1 = if_else(is.na(isa), 0, isa), #ingreso monetario observado segunda actividad NA=0
-         impa2 = if_else(is.na(impaes), 0, impaes),#ingreso monetario estimado primera actividad NA=0
-         isa2 = if_else(is.na(isaes), 0, isaes), #ingreso monetario estimado segunda actividad NA=0
-         inglab = impa1 + isa1, #suma ingreso laboral observado
-         inglabes = impa2 + isa2, #suma ingreso laboral estimado (faltantes, extremos y ceros inconsistentes)
-         inglab = if_else(inglab == 0, inglabes, inglab), #consolidamos ingreso laboral estimado para valores en 0
-         ingtot =if_else(is.na(ingtot), 0, ingtot), #ingreso total NA=0
-         ingnolab = ingtot - inglab, #identificacion de ingreso no laboral
-         inglab = if_else(inglab == 0, 0.0001, inglab), # correcion de 0 para calculo de logaritmo
-         salario_hora = inglab/t_horas_trabajadas,# salario por horal
-         log_salario_hora = log(salario_hora)) %>% # log salario por hora
+         sexo = ((sexo*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
+         ing_trabajo1_sin_impu = if_else(is.na(impa), 0, impa), #ingreso monetario observado primera actividad NA=0
+         ing_trabajo2_sin_impu = if_else(is.na(isa), 0, isa), #ingreso monetario observado segunda actividad NA=0
+         ing_trabajo1_con_impu = if_else(is.na(impaes), 0, impaes),#ingreso monetario estimado primera actividad NA=0
+         ing_trabajo2_con_impu = if_else(is.na(isaes), 0, isaes), #ingreso monetario estimado segunda actividad NA=0
+         ing_laboral = ing_trabajo1_sin_impu + ing_trabajo2_sin_impu, #suma ingreso laboral observado
+         ing_laboral_estimado = ing_trabajo1_con_impu + ing_trabajo2_con_impu, #suma ingreso laboral estimado (faltantes, extremos y ceros inconsistentes)
+         ing_laboral = if_else(ing_laboral == 0, ing_laboral_estimado, ing_laboral), #consolidamos ingreso laboral estimado para valores en 0
+         ingtotal =if_else(is.na(ingtot), 0, ingtot), #ingreso total NA=0
+         ing_nolaboral = ingtotal - ing_laboral, #identificacion de ingreso no laboral #ESTA VARIABLE NO SERÍA NECESARIA
+         ing_laboral = if_else(ing_laboral == 0, 0.0001, ing_laboral), # correcion de 0 para calculo de logaritmo
+         salario_hora = ing_laboral/t_horas_trabajadas,# salario por horal
+         ingreso_hogar_hora = (ingreso_hogarmes_nominal/160), # hallo los ingresos del hogar para evaluar la posibilidad de reemplazar missing values con este valor por hogar
+         log_salario_hora = log(salario_hora), # log salario por hora con la variable creada por sergio
+         log_salario_hora2 = log(salario_real_hora), # log salario por hora con la variable creada por ignacio
+         log_salariohogar_hora = log(ingreso_hogar_hora)) %>% # log salario por hora de los ingresos del hogar
            
-  select(-fex_c, -fex_dpto, -fweight, -p7040, -impa, -isa, -impaes, -isaes,
-         -impa1, -impa2, -isa1, -isa2) %>% 
-         
-  filter (edad >= 18, poblacion_economicamente_activa == 1)
+  select(-ingreso_mensual_especie, -salario_nominal_mensual, -p7040, -impa, 
+         -isa, -impaes, -isaes, -clase) %>%
+  
+  filter (edad >= 18) # filtro por mayores de edad
+
+# Creo los estadísticos descriptivos de las principales variables de interés
+var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora2",
+                         "log_salariohogar_hora", "edad", "sexo", 
+                         "educacion_alcanzada", "grado_alcanzado", "ocupacion",
+                         "formal_informal", "parentesco_jhogar",
+                         "ingreso_hogarmes_nominal", "ingreso_hogar_hora",
+                         "salario_hora", "salario_real_hora")]
+
+#Propuesta para incluir salario en los datos que no reportan
+Salario1 <- ifelse(GEIH$salario_hora == 0 & GEIH$directorio > 1, GEIH$ingreso_hogar_hora, GEIH$salario_hora) # Primero validar si la persona tenía más integrantes en el hogar y si es así, duplicar el valor del integrante que sí tiene valor de ingreso en los demás integrantes del hogar (aplicar en personas que tengan NA en el salario). ## Evaluar cuántos datos quedarían al final.
+Salario2 <- ifelse(GEIH$salario_real_hora == 0 & GEIH$directorio > 1, GEIH$ingreso_hogar_hora, GEIH$salario_real_hora)
 
 
-glimpse(GEIH)
+skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
 
 ########### Puntos a tener en cuenta para la limpieza de datos #################
-# Las variables de interés que he observado hasta el momento son: "numero_de_base" "...2"
-#"directorio" "secuencia_p" "orden" "clase" "dominio" "mes" "estrato1" "sex" "age"
-
-# Retirar menores de 18 años
-# No limitar un máximo  
-# El valor a usar para el salario será 
-# Primero validar si la persona tenía más integrantes en el hogar y si es así, duplicar el valor del integrante que sí tiene valor de ingreso en los demás integrantes del hogar (aplicar en personas que tengan NA en el salario). ## Evaluar cuántos datos quedarían al final.
 # Evaluar outliers de experiencia, educación, edad, género, por salario
-# Calcular salario por hora y sacarle logaritmo
 
-
-
-
-
-
-## Ver una de las 10 tablas importadas en la lista tablas_html
-tabla_2 <- tablas_html[[2]]
-view(tabla_2)
-
-# descargar urls individualmente
-table1 <- read_html("https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_1.html") %>%
-  html_table()
-
-
+table(GEIH$secuencia_p)
+################### FIn #######################################################
