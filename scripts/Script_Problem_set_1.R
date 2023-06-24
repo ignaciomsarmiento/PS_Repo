@@ -11,7 +11,7 @@ rm(list = ls()) # Limpiar Rstudio
 options(scipen = 20,  digits=3) # establezco la notacion científica y el número de decimales
 require(pacman)
 p_load(ggplot2, rio, tidyverse, skimr, caret, rvest, magrittr, openxlsx,
-       rstudioapi, readxl, openxlsx, stargazer, boot) # Cargo varios paquetes al tiempo
+       rstudioapi, readxl, openxlsx, stargazer, boot, car) # Cargo varios paquetes al tiempo
 
 # Determino el directorio de trabajo
 escritorio <- rstudioapi::getActiveDocumentContext()$path #accedo a la ruta del archivo
@@ -103,20 +103,71 @@ GEIH <- GEIH %>%
 
 sum(is.na(GEIH$salario_real_hora_imputado)) # evalúo el total de valores con NA después de la imputación.
 
+# Evalúo outliers de las variables de continuas
+var_outliers <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
+                         "salario_real_hora", "salario_real_hora_imputado",
+                         "edad", "edad2", "educacion_alcanzada",
+                         "educacion_tiempo")]
+
+# Establecer el diseño de la ventana de gráficos
+par(mfrow = c(2, 4))  # Ajusta los valores de "filas" y "columnas" según tus necesidades
+
+# Evalúo outliers de mis variables de interés con boxplot
+for (variable in colnames(var_outliers)) {
+  boxplot(var_outliers[[variable]], main = variable)
+}
+
+# Evalúo valores estadísticamente atípicos mediante prueba de significancia outlierTest
+for (variable in colnames(var_outliers)) {
+  formula <- paste(variable, "~ 1")
+  lm_outliers <- lm(formula, data = var_outliers, na.action = na.omit)
+  outlier_test <- outlierTest(lm_outliers)
+
+  cat("Variable:", variable, "\n")
+  summary(lm_outliers)
+  print(outlier_test)
+  cat("\n")
+}
+
+# llamo los outliers para evaluar su coherencia
+GEIH[c(6790, 7313, 13937, 21436, 9000, 14623, 21870, 1539),
+     c("salario_real_hora", "log_salario_hora", "edad",
+       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable log_salario_hora
+
+GEIH[c(9409),
+     c("salario_real_hora", "log_salario_hora", "edad",
+       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable edad
+
+GEIH[c(8),
+     c("salario_real_hora", "log_salario_hora", "edad",
+       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable educacion_alcanzada
+
+GEIH[c(20957, 21792),
+     c("salario_real_hora", "log_salario_hora", "edad",
+       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable educacion_tiempo
+
+# Elimino los datos incoherentes
+GEIH <- GEIH[-c(13937, 21870, 9409, 8, 20957, 21792), , drop = FALSE]
+
+# Elimino variables con NA en la variable de interés salario_real_hora_imputado
+GEIH <- GEIH[complete.cases(GEIH$salario_real_hora_imputado), , drop = FALSE]
+
 # Exporto la base limpia
 write.xlsx(GEIH, "GEIH")
 
 # Cargo la base limpia
-# GEIH <- read_excel("GEIH") Si no quiere correr todo el código, pueden correr esta línea y les importa la base límpia
+GEIH <- read_excel("GEIH") # Si no quiere correr todo el código, pueden correr esta línea y les importa la base límpia
 
 # Creo los estadísticos descriptivos de las principales variables de interés
 var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
                          "salario_real_hora", "salario_real_hora_imputado",
                          "edad", "edad2", "sexo", "educacion_alcanzada",
                          "educacion_tiempo", "emprendedor", "ocupacion",
-                         "formal_informal",  "parentesco_jhogar", "desempleado", "salario_promedio_hogar")]
+                         "formal_informal",  "parentesco_jhogar", "salario_promedio_hogar")]
+
 
 skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
+
 
 ########### Puntos a tener en cuenta para la limpieza de datos #################
 # Evaluar outliers de experiencia, educación, edad, género, por salario
