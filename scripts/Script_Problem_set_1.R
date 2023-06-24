@@ -50,7 +50,7 @@ GEIH <- base_geih2018 %>%
          "depto", "secuencia_p", "orden") %>% # 33 variables seleccionadas de la base bruta
 
   rename(edad ="age",
-         sexo = "sex", #1=hombre
+         mujer = "sex", #1= hombre
          educacion_alcanzada = "maxEducLevel", # omitimos nivel_educativo = "p6210" ya que maxEduclevel tiene la información de esta variable
          educacion_tiempo = "p6210s1",
          emprendedor = "cuentaPropia",
@@ -75,7 +75,7 @@ GEIH <- base_geih2018 %>%
   
   mutate(parentesco_jhogar = if_else(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
          urbano = if_else(urbano == 1, 1, 0), # dummy para cabecera municipal =1
-         sexo = ((sexo*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
+         mujer = ((mujer*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
          edad2 = edad*edad, # creo edad al cuadrado
          log_salario_hora = ifelse(salario_real_hora == 0, NA, log(salario_real_hora))) %>% # log salario por hora con la variable creada por ignacio # REVISAR AJUSTE DE LA VARIABLE
 
