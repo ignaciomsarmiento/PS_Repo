@@ -79,43 +79,46 @@ GEIH <- base_geih2018 %>%
          edad2 = edad*edad, # creo edad al cuadrado
          log_salario_hora = ifelse(salario_real_hora == 0, NA, log(salario_real_hora))) %>% # log salario por hora con la variable creada por ignacio # REVISAR AJUSTE DE LA VARIABLE
 
-  filter (edad >= 18) # filtro por mayores de edad
+  filter (edad >= 18 & desempleado !=1) # filtro por mayores de edad y empleados
 
 names(GEIH)
 rm(base_geih2018)
 
-
-# DE AQUÍ PARA ABAJO ESTÁ EN CONSTRUCCIÓN (todavía lo estoy ajustando)
-# Evalúo la viabilidad de tratar los valores de NA en la variable de interés salario_real_hora
-sum(GEIH$desempleado != 0 & is.na(GEIH$salario_real_hora)) #Evalúo cuántas personas están desempleadas para dejarlas sin ajustes
-sum(GEIH$desempleado == 0 & is.na(GEIH$salario_real_hora)) #Evalúo cuántas personas están empleadas y reportan un salario de 0
-GEIH$llave <- paste(GEIH$directorio, GEIH$secuencia_p) # creo una llave de hogar 
-GEIH$llave
-
-GEIH <- GEIH %>%
-  group_by(llave) %>%
-  mutate(condicion = ifelse(is.na(salario_real_hora) & any(!is.na(salario_real_hora)), 1, 0)) %>%
+# calcular promedio de salario por hogar para quienes trabajan
+salario_promedio_hogar <- GEIH %>%
+  group_by(directorio, secuencia_p) %>% # Agrupo por identificación de familia
+  summarise(salario_promedio_hogar = mean(salario_real_hora, na.rm = T)) %>% # saco el promedio de salario por familia omitiendo los valores de NA
+  filter(!(is.na(salario_promedio_hogar))) %>% # filtro por valores diferentes a NA en la variable salario promedio
   ungroup()
 
+#Uno las bases con el identificador de directorio y secuencia_p
+GEIH <- left_join(GEIH, salario_promedio_hogar, by = c("directorio", "secuencia_p"))
+rm(salario_promedio_hogar)
 
-GEIH %>%
-mutate(condicion = ifelse(any(is.na(salario_real_hora)) & any(!is.na(salario_real_hora)), 1, 0))
+# Imputo los valores promedio por familia a los valores de NA con personas que reportaron estar empleadas
+GEIH <- GEIH %>% 
+  mutate(salario_real_hora_imputado = ifelse(is.na(salario_real_hora), salario_promedio_hogar, salario_real_hora), # Creo una nueva variable de salario por hora imputando los valores de los salarios promedio por hogar
+         log_salario_hora_imputado = log(salario_real_hora_imputado))
+         
 
-sum(GEIH$condicion)
+sum(is.na(GEIH$salario_real_hora_imputado)) # evalúo el total de valores con NA después de la imputación.
+
+# Exporto la base limpia
+write.xlsx(GEIH, "GEIH")
+
+# Cargo la base limpia
+# GEIH <- read_excel("GEIH") Si no quiere correr todo el código, pueden correr esta línea y les importa la base límpia
 
 # Creo los estadísticos descriptivos de las principales variables de interés
-var_interes <- GEIH [, c("log_salario_hora",
-                         "salario_real_hora", "edad", "sexo", "educacion_alcanzada",
-                         "ocupacion", "formal_informal",  "parentesco_jhogar",
-                         "desempleado")] # "años_educacion", "emprendedor", 
-
-GEIH <- na.omit(GEIH[, "log_salario_hora", drop = FALSE])
-
+var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
+                         "salario_real_hora", "salario_real_hora_imputado",
+                         "edad", "edad2", "sexo", "educacion_alcanzada",
+                         "educacion_tiempo", "emprendedor", "ocupacion",
+                         "formal_informal",  "parentesco_jhogar", "desempleado", "salario_promedio_hogar")]
 
 skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
 
 ########### Puntos a tener en cuenta para la limpieza de datos #################
 # Evaluar outliers de experiencia, educación, edad, género, por salario
 
-table(GEIH$secuencia_p)
 ################### FIn #######################################################
