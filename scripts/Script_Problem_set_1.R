@@ -5,13 +5,13 @@
 # fecha: 01/02/2021
 ################################################################################
 
-#Organizo el directorio y descargo los paquetes requeridos
+# 1) Organizo el directorio y descargo los paquetes requeridos #################
 
 rm(list = ls()) # Limpiar Rstudio
 options(scipen = 20,  digits=3) # establezco la notacion científica y el número de decimales
 require(pacman)
 p_load(ggplot2, rio, tidyverse, skimr, caret, rvest, magrittr, openxlsx,
-       rstudioapi, readxl, openxlsx, stargazer, boot, car) # Cargo varios paquetes al tiempo
+       rstudioapi, readxl, openxlsx, stargazer, boot, car) # Cargo los paquetes de interés para ejecutar el código
 
 # Determino el directorio de trabajo
 escritorio <- rstudioapi::getActiveDocumentContext()$path #accedo a la ruta del archivo
@@ -20,6 +20,7 @@ setwd(carpeta) # Establezco el directorio de trabajo como aquel donde está guar
 getwd() # verifico el directorio
 rm(carpeta, escritorio) # Limpio el ambiente
 
+# 2) Descargo y limpio la data para el análisis ################################
 #(OMITO ESTAS LÍNEAS PORQUE IMPORTÉ EL ARCHIVO YA QUE ASÍ ES MENOS PESADO. AL FINAL, VOLVERÉ A ACTIVAR ESTAS LÍNEAS)
 # descargo el contenido de las 10 páginas 
 #tablas_html <- vector("list", 10) # creo una lista para guardar los enlaces
@@ -154,9 +155,13 @@ GEIH <- GEIH[complete.cases(GEIH$salario_real_hora_imputado), , drop = FALSE]
 
 # Exporto la base limpia
 write.xlsx(GEIH, "GEIH")
+rm(list = ls()) # Limpiar Rstudio
 
+# 3) Evalúo las estadísticas descriptivas de las variables de interés #########
 # Cargo la base limpia
 GEIH <- read_excel("GEIH") # Si no quiere correr todo el código, pueden correr esta línea y les importa la base límpia
+
+
 
 # Creo los estadísticos descriptivos de las principales variables de interés
 var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
@@ -169,7 +174,7 @@ var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
 skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
 
 
-########### Puntos a tener en cuenta para la limpieza de datos #################
-# Evaluar outliers de experiencia, educación, edad, género, por salario
+########### Pendientes punto 2 #################################################
+# Estadísticas descriptivas, redacción, gráficas, análisis
 
 ################### FIn #######################################################
