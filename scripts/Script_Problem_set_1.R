@@ -50,7 +50,7 @@ GEIH <- base_geih2018 %>%
          "depto", "secuencia_p", "orden") %>% # 33 variables seleccionadas de la base bruta
 
   rename(edad ="age",
-         mujer = "sex", #1= hombre
+         mujer = "sex", #1= hombre en la línea 78 invierto la variable
          educacion_alcanzada = "maxEducLevel", # omitimos nivel_educativo = "p6210" ya que maxEduclevel tiene la información de esta variable
          educacion_tiempo = "p6210s1",
          emprendedor = "cuentaPropia",
