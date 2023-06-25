@@ -236,24 +236,3 @@ porcentaje_mayores <- sum(GEIH$edad > 60)/sum(GEIH$edad > 17) *100 #calculo el p
 porcentaje_mayores
 
 ################### FIn #######################################################
-#estadisticas <- skim(var_salario)
-#estadisticas_tbl <- as.data.frame(estadisticas[, c("skim_variable", "n_missing", "numeric.mean", "numeric.sd")])
-#estadisticas_tbl
-#word_table1 <- flextable(estadisticas)
-#word_table1 <- theme_booktabs(word_table1)
-#save_as_docx(word_table1, path =  "C:/Users/PORTATIL/OneDrive - Universidad de los Andes/Big Data/Repositorios/PS_Repo/scripts/descriptivos.docx")
-## Opciones para guardar las tablas ###########################################
-
-# Obtener el resumen estadístico
-#summary_stats <- var_interes %>%
- # skim_without_charts()
-
-# Convertir el resumen estadístico a un objeto flextable
-#table <- flextable(summary_stats)
-
-# Definir el estilo de la tabla (opcional)
-#table <- theme_table(table, halign = "center", part = "all", font.size = 10)
-
-# Guardar la tabla en un archivo Word
-#path <- "ruta/del/archivo/descriptivos.docx"
-#save_as_docx(table, path)
