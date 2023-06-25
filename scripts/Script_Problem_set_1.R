@@ -199,10 +199,36 @@ tabla_01 <- autofit(tabla_01)
 tabla_01
 
 
+# Crear gráfica de frecuencias para el salario
+filtro_salario <- GEIH$salario_real_hora_imputado[
+  GEIH$salario_real_hora_imputado <= mean(GEIH$salario_real_hora_imputado) +
+    3 * sd(GEIH$salario_real_hora_imputado)] # omito valores superiores a 3 ds para facilitar la visualización gráfica
 
+hist(filtro_salario,
+     breaks = 50,
+     main = "Frecuencias de salario por hora",
+     xlab = "Salario por hora", ylab = "Frecuencia") #creo el histograma
 
+filtro_logsalario <- GEIH$log_salario_hora_imputado[
+  GEIH$log_salario_hora_imputado <= mean(GEIH$log_salario_hora_imputado) +
+    3 * sd(GEIH$log_salario_hora_imputado)] # omito valores superiores a 4 ds para facilitar la visualización gráfica
 
+hist(filtro_logsalario,
+     breaks = 50,
+     main = "Frecuencias de salario por hora",
+     xlab = "Salario por hora", ylab = "Frecuencia") #creo el histograma
 
+# Crear gráfica de frecuencias para la edad
+hist(GEIH$edad,
+     breaks = 50,
+     main = "Frecuencias de edad",
+     xlab = "edad", ylab = "Frecuencia") #creo el histograma
+
+# Crear gráfica de frecuencias para los años de educación
+hist(GEIH$educacion_tiempo,
+     breaks = 50,
+     main = "Frecuencias de edad",
+     xlab = "años de educación", ylab = "Frecuencia") #creo el histograma
 
 
 
