@@ -197,7 +197,7 @@ tabla_01 <- theme_booktabs(tabla_01)
 tabla_01 <- autofit(tabla_01)
 tabla_01
 
-
+par(mfrow = c(1, 2))
 # Crear gráfica de frecuencias para el salario
 filtro_salario <- GEIH$salario_real_hora_imputado[
   GEIH$salario_real_hora_imputado <= mean(GEIH$salario_real_hora_imputado) +
@@ -215,7 +215,7 @@ filtro_logsalario <- GEIH$log_salario_hora_imputado[
 hist(filtro_logsalario,
      breaks = 50,
      main = "Frecuencias de salario por hora",
-     xlab = "Salario por hora", ylab = "Frecuencia") #creo el histograma
+     xlab = "Log de Salario por hora", ylab = "Frecuencia") #creo el histograma
 
 # Crear gráfica de frecuencias para la edad
 hist(GEIH$edad,
