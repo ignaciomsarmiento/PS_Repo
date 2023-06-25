@@ -11,7 +11,7 @@ rm(list = ls()) # Limpiar Rstudio
 options(scipen = 20,  digits=3) # establezco la notacion científica y el número de decimales
 require(pacman)
 p_load(ggplot2, rio, tidyverse, skimr, caret, rvest, magrittr, openxlsx,
-       rstudioapi, readxl, openxlsx, stargazer, boot, car) # Cargo los paquetes de interés para ejecutar el código
+       rstudioapi, readxl, openxlsx, stargazer, boot, car, flextable) # Cargo los paquetes de interés para ejecutar el código
 
 # Determino el directorio de trabajo
 escritorio <- rstudioapi::getActiveDocumentContext()$path #accedo a la ruta del archivo
@@ -66,10 +66,10 @@ GEIH <- base_geih2018 %>%
          parentesco_jhogar = "p6050",
          tiempo_trabajando = "p6426", # la variable está en meses
          t_horas_trabajadas = "totalHoursWorked",
-         ingreso_mensual = "y_bonificaciones_m", # revisar estadísticas si son coherentes
-         ingreso_mensual_independientes = "y_gananciaIndep_m", # revisar estadísticas si son coherentes
-         salario_real_hora = "y_salary_m_hu", # revisar estadísticas si son coherentes
-         ingreso_hogarmes_nominal = "y_vivienda_m",# revisar estadísticas si son coherentes
+         ingreso_mensual = "y_bonificaciones_m",
+         ingreso_mensual_independientes = "y_gananciaIndep_m",
+         salario_real_hora = "y_salary_m_hu",
+         ingreso_hogarmes_nominal = "y_vivienda_m",
          pension = "cotPension", # cotiza pensión
          salud = "regSalud", # cotiza salud
          urbano = "clase") %>% # reside en cabecera
@@ -77,8 +77,7 @@ GEIH <- base_geih2018 %>%
   mutate(parentesco_jhogar = if_else(parentesco_jhogar == 1, 1, 0), # Dummy para jefes de hogar=1
          urbano = if_else(urbano == 1, 1, 0), # dummy para cabecera municipal =1
          mujer = ((mujer*-1)+1), #dummy que toma valor 1 para mujeres (punto 2)
-         edad2 = edad*edad, # creo edad al cuadrado
-         log_salario_hora = ifelse(salario_real_hora == 0, NA, log(salario_real_hora))) %>% # log salario por hora con la variable creada por ignacio # REVISAR AJUSTE DE LA VARIABLE
+         edad2 = edad*edad) %>% # creo edad al cuadrado
 
   filter (edad >= 18 & desempleado !=1) # filtro por mayores de edad y empleados
 
@@ -101,17 +100,21 @@ GEIH <- GEIH %>%
   mutate(salario_real_hora_imputado = ifelse(is.na(salario_real_hora), salario_promedio_hogar, salario_real_hora), # Creo una nueva variable de salario por hora imputando los valores de los salarios promedio por hogar
          log_salario_hora_imputado = log(salario_real_hora_imputado))
          
-
 sum(is.na(GEIH$salario_real_hora_imputado)) # evalúo el total de valores con NA después de la imputación.
 
+# Evaluó el salario_hora con valores imputados y sin valores imputados
+var_salario <- GEIH [, c("salario_real_hora", "salario_real_hora_imputado")]
+
+# Evalúo los descriptivos de comparación entre el salario sin y con imputación de valores
+var_salario %>%
+  skim_without_charts()
+
 # Evalúo outliers de las variables de continuas
-var_outliers <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
-                         "salario_real_hora", "salario_real_hora_imputado",
-                         "edad", "edad2", "educacion_alcanzada",
-                         "educacion_tiempo")]
+var_outliers <- GEIH [, c("salario_real_hora_imputado", "edad",
+                          "educacion_tiempo")]
 
 # Establecer el diseño de la ventana de gráficos
-par(mfrow = c(2, 4))  # Ajusta los valores de "filas" y "columnas" según tus necesidades
+par(mfrow = c(1, 3))  # Ajusta los valores de "filas" y "columnas" según tus necesidades
 
 # Evalúo outliers de mis variables de interés con boxplot
 for (variable in colnames(var_outliers)) {
@@ -130,25 +133,24 @@ for (variable in colnames(var_outliers)) {
   cat("\n")
 }
 
-# llamo los outliers para evaluar su coherencia
-GEIH[c(6790, 7313, 13937, 21436, 9000, 14623, 21870, 1539),
-     c("salario_real_hora", "log_salario_hora", "edad",
-       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable log_salario_hora
+# analizo los outliers para evaluar la coherencia de las observaciones
+GEIH[c(6790, 7313, 21436, 9000, 14623, 1538, 1539, 6788, 6789, 4803),
+     c("salario_real_hora_imputado", "edad", "educacion_alcanzada",
+       "educacion_tiempo", "mujer", "emprendedor", "ocupacion",
+       "formal_informal", "parentesco_jhogar", "salario_promedio_hogar")] # variable salario_real_hora_imputado
 
 GEIH[c(9409),
-     c("salario_real_hora", "log_salario_hora", "edad",
-       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable edad
-
-GEIH[c(8),
-     c("salario_real_hora", "log_salario_hora", "edad",
-       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable educacion_alcanzada
+     c("salario_real_hora_imputado", "edad", "educacion_alcanzada",
+       "educacion_tiempo", "mujer", "emprendedor", "ocupacion",
+       "formal_informal", "parentesco_jhogar", "salario_promedio_hogar")] # variable edad
 
 GEIH[c(20957, 21792),
-     c("salario_real_hora", "log_salario_hora", "edad",
-       "edad2", "educacion_alcanzada", "educacion_tiempo")] # variable educacion_tiempo
+     c("salario_real_hora_imputado", "edad", "educacion_alcanzada",
+       "educacion_tiempo", "mujer", "emprendedor", "ocupacion",
+       "formal_informal", "parentesco_jhogar", "salario_promedio_hogar")] # variable educacion_tiempo
 
 # Elimino los datos incoherentes
-GEIH <- GEIH[-c(13937, 21870, 9409, 8, 20957, 21792), , drop = FALSE]
+GEIH <- GEIH[-c(9409, 20957, 21792), , drop = FALSE]
 
 # Elimino variables con NA en la variable de interés salario_real_hora_imputado
 GEIH <- GEIH[complete.cases(GEIH$salario_real_hora_imputado), , drop = FALSE]
@@ -162,28 +164,78 @@ rm(list = ls()) # Limpiar Rstudio
 GEIH <- read_excel("GEIH") # Si no quiere correr todo el código, pueden correr esta línea y les importa la base límpia
 names(GEIH)
 
-# Evaluó el salario_hora con valores imputados y sin valores imputados
-var_salario <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
-                         "salario_real_hora", "salario_real_hora_imputado")]
-
-estadisticas <- skim(var_salario)
-estadisticas_tbl <- as.data.frame(estadisticas[, c("skim_variable", "n_missing", "numeric.mean", "numeric.sd")])
-estadisticas_tbl
-word_table1 <- flextable(estadisticas)
-word_table1 <- theme_booktabs(word_table1)
-save_as_docx(word_table1, path =  "C:/Users/PORTATIL/OneDrive - Universidad de los Andes/Big Data/Repositorios/PS_Repo/scripts/descriptivos.docx")
-
 # Creo los estadísticos descriptivos de las principales variables de interés
-var_interes <- GEIH [, c("log_salario_hora_imputado", "edad", "edad2", "mujer",
+var_interes <- GEIH [, c("salario_real_hora_imputado", "log_salario_hora_imputado", "edad", "edad2", "mujer",
                          "educacion_alcanzada", "educacion_tiempo",
                          "emprendedor", "ocupacion", "formal_informal",
-                         "parentesco_jhogar", "salario_promedio_hogar")]
-p_load("officer","knitr", "flextable")
+                         "parentesco_jhogar", "salario_promedio_hogar",
+                         "relacion_laboral", "tamaño_empresa")]
 
-descriptivos_salario <- skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
+descriptivos <- var_interes [, c("salario_real_hora_imputado", "edad",
+                         "educacion_tiempo", "mujer", "emprendedor",
+                         "formal_informal", "parentesco_jhogar", 
+                         "relacion_laboral", "tamaño_empresa")]
 
+# Evalúo los descriptivos de las variables de interés en una tabla para exportar
+tabla_estadisticas <- tibble()  # Creo una tibble vacía para almacenar los resultados
+for (variable in colnames(descriptivos)) {
+  estadisticas <- descriptivos %>%
+    summarise(n_observaciones = sum(!is.na(.data[[variable]])),
+              promedio = mean(.data[[variable]], na.rm = TRUE),
+              sd = sd(.data[[variable]], na.rm = TRUE),
+              mín = min(.data[[variable]], na.rm = TRUE),
+              max = max(.data[[variable]], na.rm = TRUE)) %>%
+    add_column(variable = variable, .before = 1)
+  
+  tabla_estadisticas <- bind_rows(tabla_estadisticas, estadisticas)  # Agregar las estadísticas a la tabla
+}
+
+tabla_estadisticas
+
+# Crear la tabla en formato APA
+tabla_01 <- flextable(tabla_estadisticas)
+tabla_01 <- theme_booktabs(tabla_01)
+tabla_01 <- autofit(tabla_01)
+tabla_01
+
+
+
+
+
+
+
+
+
+# Gráficas explicativas
+hist(GEIH$log_salario_hora_imputado, freq = TRUE)
+boxplot(GEIH$log_salario_hora_imputado)
+hist(GEIH$edad)
+boxplot(GEIH$sexo == 0, GEIH$sexo == 1)
+
+boxplot(mujer ~ sexo, xlab = "Sexo", ylab = "Valores")
 
 ########### Pendientes punto 2 #################################################
 # Estadísticas descriptivas, redacción, gráficas, análisis
 
 ################### FIn #######################################################
+#estadisticas <- skim(var_salario)
+#estadisticas_tbl <- as.data.frame(estadisticas[, c("skim_variable", "n_missing", "numeric.mean", "numeric.sd")])
+#estadisticas_tbl
+#word_table1 <- flextable(estadisticas)
+#word_table1 <- theme_booktabs(word_table1)
+#save_as_docx(word_table1, path =  "C:/Users/PORTATIL/OneDrive - Universidad de los Andes/Big Data/Repositorios/PS_Repo/scripts/descriptivos.docx")
+## Opciones para guardar las tablas ###########################################
+
+# Obtener el resumen estadístico
+#summary_stats <- var_interes %>%
+ # skim_without_charts()
+
+# Convertir el resumen estadístico a un objeto flextable
+#table <- flextable(summary_stats)
+
+# Definir el estilo de la tabla (opcional)
+#table <- theme_table(table, halign = "center", part = "all", font.size = 10)
+
+# Guardar la tabla en un archivo Word
+#path <- "ruta/del/archivo/descriptivos.docx"
+#save_as_docx(table, path)
