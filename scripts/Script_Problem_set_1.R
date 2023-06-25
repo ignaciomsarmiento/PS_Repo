@@ -235,47 +235,6 @@ hist(GEIH$educacion_tiempo,
 porcentaje_mayores <- sum(GEIH$edad > 60)/sum(GEIH$edad > 17) *100 #calculo el porcentaje de personas mayores de 60 años
 porcentaje_mayores
 
-# descriptivos de las variables categóricas
-
-#ajusto los valores de las variables categóricas
-# 
-GEIH$relacion_laboral <- ordered(GEIH$relacion_laboral,
-                          levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
-                          labels = c("Obrero o empleado de empresa particular",
-                                     "Obrero o empleado del gobierno",
-                                     "Empleado doméstico",
-                                     "Trabajador por cuenta propia",
-                                     "Patron o empleador",
-                                     "Trabajador familiar sin remuneracion",
-                                     "Trabajador sin remuneracin en empresas o negocios de otros hogares",
-                                     "Jornalero o peon",
-                                     "Otro"))
-
-GEIH$tamaño_empresa <- ordered(GEIH$tamaño_empresa,
-                                 levels = c(1, 2, 3, 4, 5),
-                                 labels = c("empleado propio",
-                                            "2 a 5 trabajadores",
-                                            "6 a 10 trabajadores",
-                                            "11 a 50 trabajadores",
-                                            "Más de 50 trabajadores"))
-
-summary(GEIH$tamaño_empresa)
-
-
-
-
-
-# Gráficas explicativas
-hist(GEIH$log_salario_hora_imputado, freq = TRUE)
-boxplot(GEIH$log_salario_hora_imputado)
-hist(GEIH$edad)
-boxplot(GEIH$sexo == 0, GEIH$sexo == 1)
-
-boxplot(mujer ~ sexo, xlab = "Sexo", ylab = "Valores")
-
-########### Pendientes punto 2 #################################################
-# Estadísticas descriptivas, redacción, gráficas, análisis
-
 ################### FIn #######################################################
 #estadisticas <- skim(var_salario)
 #estadisticas_tbl <- as.data.frame(estadisticas[, c("skim_variable", "n_missing", "numeric.mean", "numeric.sd")])
