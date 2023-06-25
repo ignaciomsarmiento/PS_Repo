@@ -173,8 +173,7 @@ var_interes <- GEIH [, c("salario_real_hora_imputado", "log_salario_hora_imputad
 
 descriptivos <- var_interes [, c("salario_real_hora_imputado", "edad",
                          "educacion_tiempo", "mujer", "emprendedor",
-                         "formal_informal", "parentesco_jhogar", 
-                         "relacion_laboral", "tamaño_empresa")]
+                         "formal_informal", "parentesco_jhogar")]
 
 # Evalúo los descriptivos de las variables de interés en una tabla para exportar
 tabla_estadisticas <- tibble()  # Creo una tibble vacía para almacenar los resultados
@@ -222,13 +221,47 @@ hist(filtro_logsalario,
 hist(GEIH$edad,
      breaks = 50,
      main = "Frecuencias de edad",
-     xlab = "edad", ylab = "Frecuencia") #creo el histograma
+     xlab = "años", ylab = "Frecuencia") #creo el histograma
+
+porcentaje_mayores <- sum(GEIH$edad > 60)/sum(GEIH$edad > 17) *100 #calculo el porcentaje de personas mayores de 60 años
+porcentaje_mayores
 
 # Crear gráfica de frecuencias para los años de educación
 hist(GEIH$educacion_tiempo,
-     breaks = 50,
-     main = "Frecuencias de edad",
+     breaks = 20,
+     main = "Frecuencias de años de educación",
      xlab = "años de educación", ylab = "Frecuencia") #creo el histograma
+
+porcentaje_mayores <- sum(GEIH$edad > 60)/sum(GEIH$edad > 17) *100 #calculo el porcentaje de personas mayores de 60 años
+porcentaje_mayores
+
+# descriptivos de las variables categóricas
+
+#ajusto los valores de las variables categóricas
+# 
+GEIH$relacion_laboral <- ordered(GEIH$relacion_laboral,
+                          levels = c(1, 2, 3, 4, 5, 6, 7, 8, 9),
+                          labels = c("Obrero o empleado de empresa particular",
+                                     "Obrero o empleado del gobierno",
+                                     "Empleado doméstico",
+                                     "Trabajador por cuenta propia",
+                                     "Patron o empleador",
+                                     "Trabajador familiar sin remuneracion",
+                                     "Trabajador sin remuneracin en empresas o negocios de otros hogares",
+                                     "Jornalero o peon",
+                                     "Otro"))
+
+GEIH$tamaño_empresa <- ordered(GEIH$tamaño_empresa,
+                                 levels = c(1, 2, 3, 4, 5),
+                                 labels = c("empleado propio",
+                                            "2 a 5 trabajadores",
+                                            "6 a 10 trabajadores",
+                                            "11 a 50 trabajadores",
+                                            "Más de 50 trabajadores"))
+
+summary(GEIH$tamaño_empresa)
+
+
 
 
 
