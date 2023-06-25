@@ -155,23 +155,83 @@ GEIH <- GEIH[complete.cases(GEIH$salario_real_hora_imputado), , drop = FALSE]
 
 # Exporto la base limpia
 write.xlsx(GEIH, "GEIH")
-rm(list = ls()) # Limpiar Rstudio
 
 # 3) Evalúo las estadísticas descriptivas de las variables de interés #########
+rm(list = ls()) # Limpiar Rstudio
 # Cargo la base limpia
 GEIH <- read_excel("GEIH") # Si no quiere correr todo el código, pueden correr esta línea y les importa la base límpia
+names(GEIH)
+
+# Evaluó el salario_hora con valores imputados y sin valores imputados
+var_salario <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
+                         "salario_real_hora", "salario_real_hora_imputado")]
+#p_load(tableone)
+#CreateTableOne(data = GEIH,
+#               vars = c("log_salario_hora", "log_salario_hora_imputado", 
+#                        "salario_real_hora", "salario_real_hora_imputado"))
+
+estadisticas <- skim_with(
+  base = sfl(n_missing = n_missing, complete_rate = complete_rate),
+  append = TRUE
+)
+
+custom_sfl <- sfl(n_missing = n_missing, complete_rate = complete_rate)
+
+# Aplicar skim_with a la base de datos GEIH y las variables seleccionadas
+estadisticas <- skim_with(data = var_salario, 
+                          vars = c("log_salario_hora", "log_salario_hora_imputado",
+                                   "salario_real_hora", "salario_real_hora_imputado"),
+                          skim_with = custom_sfl)
+
+
+
+(var_salario)
+estadisticas_tbl <- as.data.frame(estadisticas[, c("skim_variable", "n_missing", "numeric.mean", "numeric.sd")])
+estadisticas_tbl
+word_table1 <- flextable(estadisticas)
+word_table1 <- theme_booktabs(word_table1)
+save_as_docx(word_table1, path =  "C:/Users/PORTATIL/OneDrive - Universidad de los Andes/Big Data/Repositorios/PS_Repo/scripts/descriptivos.docx")
+
+# Crear una flextable a partir de estadisticas_tbl
+tabla_word <- flextable(estadisticas_tbl)
+
+# Personalizar el estilo de la tabla
+tabla_word <- theme_booktabs(tabla_word)
+
+# Guardar la tabla en un archivo de Word
+save_as_docx(word_table1, path = "C:/Users/PORTATIL/OneDrive - Universidad de los Andes/Big Data/Repositorios/PS_Repo/scripts/tabla1.docx")
+
+
+summary_stats <- var_salario %>%
+  summarise(N = n(),
+            Media = mean(.),
+            SD = sd(.),
+            Mínimo = min(.),
+            Máximo = max(.))
+
+class(var_salario)
+
+
+
+
+
+
+
+
+
 
 
 
 # Creo los estadísticos descriptivos de las principales variables de interés
-var_interes <- GEIH [, c("log_salario_hora", "log_salario_hora_imputado",
-                         "salario_real_hora", "salario_real_hora_imputado",
-                         "edad", "edad2", "sexo", "educacion_alcanzada",
-                         "educacion_tiempo", "emprendedor", "ocupacion",
-                         "formal_informal",  "parentesco_jhogar", "salario_promedio_hogar")]
+var_interes <- GEIH [, c("log_salario_hora_imputado", "edad", "edad2", "mujer",
+                         "educacion_alcanzada", "educacion_tiempo",
+                         "emprendedor", "ocupacion", "formal_informal",
+                         "parentesco_jhogar", "salario_promedio_hogar")]
+p_load("officer","knitr", "flextable")
 
 
-skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
+
+descriptivos_salario <- skim(var_interes) # obtengo las estadísticas descriptivas de las principales variables de interés
 
 
 ########### Pendientes punto 2 #################################################
