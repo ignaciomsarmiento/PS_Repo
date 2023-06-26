@@ -1,8 +1,8 @@
 ############################## Problem Set 1 ###################################
-# Autores: David Stiven Peralta M...
+# Autores: Stiven Peralta, Jazmine Galdos, Andrea Clavijo, Sergio Jiménez, Nicolás Barragán 
 # Si encuentra alg?n error o tiene sugerencias por favor cont?cteme
 # correo: ds.peralta@uniandes.edu.co
-# fecha: 01/02/2021
+# fecha: 25/06/2023
 ################################################################################
 
 # 1) Organizo el directorio y descargo los paquetes requeridos #################
@@ -21,22 +21,21 @@ getwd() # verifico el directorio
 rm(carpeta, escritorio) # Limpio el ambiente
 
 # 2) Descargo y limpio la data para el análisis ################################
-#(OMITO ESTAS LÍNEAS PORQUE IMPORTÉ EL ARCHIVO YA QUE ASÍ ES MENOS PESADO. AL FINAL, VOLVERÉ A ACTIVAR ESTAS LÍNEAS)
-# descargo el contenido de las 10 páginas 
-#tablas_html <- vector("list", 10) # creo una lista para guardar los enlaces
-#for (i in 1:10) {
-#  urls <- paste0("https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_", i, ".html")
-#  tablas_html[[i]] <- read_html(urls) %>% html_table()
-#} # creo un loop para descargar las 10 tablas de la página y los guardo en el vector "tablas_html"
-#print(tablas_html) # Verifico que la información haya quedado bien descargada
+descargo el contenido de las 10 páginas 
+tablas_html <- vector("list", 10) # creo una lista para guardar los enlaces
+for (i in 1:10) {
+  urls <- paste0("https://ignaciomsarmiento.github.io/GEIH2018_sample/pages/geih_page_", i, ".html")
+  tablas_html[[i]] <- read_html(urls) %>% html_table()
+} # creo un loop para descargar las 10 tablas de la página y los guardo en el vector "tablas_html"
+print(tablas_html) # Verifico que la información haya quedado bien descargada
 
 # Concateno el contenido de las 10 tablas
-#base_geih2018 <- bind_rows(tablas_html, .id = "numero_de_base")
-#as.data.frame(base_geih2018)
-#glimpse(base_geih2018)
+base_geih2018 <- bind_rows(tablas_html, .id = "numero_de_base")
+as.data.frame(base_geih2018)
+glimpse(base_geih2018)
 
 # Exporto la base unida a Excel
-#write.xlsx(base_geih2018, "Base_unida")
+write.xlsx(base_geih2018, "Base_unida")
 
 # Cargo la base
 base_geih2018 <- read_excel("Base_unida")
