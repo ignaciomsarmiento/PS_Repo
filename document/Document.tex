@@ -183,4 +183,36 @@ Citing papers is easier, for example \cite{albouy2020unlocking} shows that crime
 \pagebreak
 
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%		  TABLES				  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section*{Tables and Figures}
+
+
+\input{../views/av_discrimination}%
+
+\pagebreak
+
+\begin{figure}[H]
+\caption{US Map} \label{fig:robust}
+    \includegraphics[scale=0.75]{../views/fig1a.pdf}   
+ \flushleft
+ Note: This figure shows ...
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   APPENDIX	 Tables	        %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\pagebreak
+\appendix
+\renewcommand{\theequation}{\Alph{chapter}.\arabic{equation}}
+
+\setcounter{figure}{0}
+\setcounter{table}{0}
+\makeatletter 
+\renewcommand{\thefigure}{A.\@arabic\c@figure}
+\renewcommand{\thetable}{A.\@arabic\c@table}
+
+\section{Appendix: Tables and Figures}\label{sec:appendix_tables} 
+
 \end{document}
