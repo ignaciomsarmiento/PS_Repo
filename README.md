@@ -122,12 +122,12 @@ Todos los outputs se generan automáticamente en `02_outputs/`
 
 - Figuras (`02_outputs/figures/`)
 
-   - `[nombre].png` – [Descripción]
+   - `boxplot_income.png` – Boxplot del ingreso total laboral
    - `[nombre].png` – [Descripción]
 
 - Tablas (`02_outputs/tables/`)
 
-   - `[nombre].tex` – [Descripción]
+   - `estimation_unconditional_age_income_profile.tex` – Muestra los resultados de la estimación del perfil edad ingreso no condicional
    - `[nombre].tex` – [Descripción]
 
 ### Predicciones Kaggle (`02_outputs/predictions/`)
@@ -157,9 +157,13 @@ Opcional pero recomendado:
 ## 5. Qué NO hacer
 
 🚫 Guardar resultados manuales
+
 🚫 Correr scripts “a mano”
+
 🚫 README que solo diga “ver código”
+
 🚫 Nombres como `final_v2_REAL_final.R`
+
 🚫 Paths absolutos (`C:/Users/...`)
 
 ---
