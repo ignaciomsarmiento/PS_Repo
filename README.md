@@ -174,7 +174,9 @@ Es recomendable incluir un archivo `.gitignore` para evitar subir archivos tempo
 
 Es recomendable documentar brevemente al inicio de cada script qué hace y qué outputs genera.
 
+### Manejo de paquetes con pacman
 
+Para facilitar la reproducibilidad, se recomienda usar el paquete pacman para cargar dependencias. La función `p_load()`instala automáticamente los paquetes que no estén disponibles y luego los carga.
 
 ---
 
