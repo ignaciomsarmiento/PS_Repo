@@ -11,7 +11,7 @@ El objetivo **no es solo que el código corra**, sino que el repositorio funcion
 
 ---
 
-## 1. Filosofía general
+## Filosofía general
 
 Un buen repositorio académico debe cumplir tres principios:
 
@@ -22,32 +22,38 @@ Un buen repositorio académico debe cumplir tres principios:
    El código *produce* resultados; los resultados **no se editan manualmente**.
 
 
-### 1.3 Un script, una responsabilidad
+### Un script, una responsabilidad
+
 Cada script debe hacer **una cosa bien definida**. No mezclar limpieza de datos, estimación y generación de outputs en el mismo archivo.
 
 **Ejemplos de buenos nombres:**
-- ✅ `data_scraper.R`  
-- ✅ `tune_random_forest_hyperparameters.R` 
-- ✅ `compute_spatial_cv_splits.R` 
-- ✅ `bootstrap_confidence_intervals.R` 
-- 🚫 `analysis_section2.R` – ¿qué hace exactamente?
-- 🚫 `models.R` – demasiado genérico
+- ✅ `01_data_scraper.R`  
+- ✅ `02_tune_random_forest_hyperparameters.R` 
+- ✅ `03_compute_spatial_cv_splits.R` 
+- 🚫 `01_analysis_section2.R` – ¿qué hace exactamente?
+- 🚫 `01_models.R` – demasiado genérico
 
-### 1.4 Documentación como defensa de decisiones
+### Documentación como defensa de decisiones
 El código debe estar **documentado para defender decisiones**, no solo para explicar sintaxis.
 
 Cada decisión metodológica, económica, o estadística debe estar explicada o justificada en comentarios.
+
+**Convenciones de nombres** (siguiendo [tidyverse style guide](https://style.tidyverse.org/files.html)):
+
+- Usar `snake_case` (minúsculas con guiones bajos)
+- Nombres descriptivos que indican **qué hace** el script
+- Prefijos numéricos para indicar orden de ejecución
 
 > 💡 Piensa en tu repo como el *Online Appendix* de un paper.
 
 ---
 
-## 2. Estructura estándar del repositorio
+## Estructura estándar del repositorio
 
 Todos los problem sets deben respetar esta estructura base:
 
 ```
-project-name/
+BDML-PS1/
 │
 ├── README.md
 │
@@ -74,14 +80,15 @@ project-name/
 
 ---
 
-## 3. El README: qué debe contener 
+## El README: qué debe contener 
 
 Cada problem set deberá tener un `README.md` que siga **este orden conceptual**, inspirado en repositorios de replicación de papers.
 
-### 3.1 Título y autores
+### Título y autores
 
 ```markdown
 # Project Title
+## Breve descripción del proyecto
 Autores  
 Curso – Universidad – Año
 ```
@@ -90,7 +97,7 @@ Debe permitir identificar el proyecto sin abrir el código.
 
 ---
 
-### 3.1 Replication instructions (el corazón)
+###  Instruciones de Replicación
 
 Debe existir **una única instrucción clara**:
 
@@ -105,7 +112,7 @@ Y explicar **qué hace ese script**, a alto nivel.
 > 🚫 Si hay que correr scripts manualmente “en orden”, el repo está mal diseñado.
 
 
-### 3.2 Code structure 
+### Estructura del código
 
 Luego hay que agregar una breve descripción del rol de cada script (la tarea bien definida del nombre). Por ejemplo
 
@@ -116,31 +123,26 @@ No explicar línea por línea: explicar **responsabilidades**.
 
 ---
 
-### 3.3 Outputs
+### Salidas
 
-Todos los outputs se generan automáticamente en `02_outputs/`
+Todos los outputs se generan automáticamente en `02_outputs/`.
 
-- Figuras (`02_outputs/figures/`)
+- Figuras (`02_outputs/figures/`): visualizaciones generadas por el código  
+- Tablas (`02_outputs/tables/`): resultados de estimaciones en formato `.tex`  
+- Predicciones (`02_outputs/predictions/`): archivos `.csv` para Kaggle (PS2 y PS3)
 
-   - `boxplot_income.png` – Boxplot del ingreso total laboral
-   - `[nombre].png` – [Descripción]
+Los nombres de los archivos deben ser **autoexplicativos**, es decir, deben ser descriptivos y permitir identificar el contenido (modelo, variable principal, especificación), usando `snake_case`.
 
-- Tablas (`02_outputs/tables/`)
-
-   - `estimation_unconditional_age_income_profile.tex` – Muestra los resultados de la estimación del perfil edad ingreso no condicional
-   - `[nombre].tex` – [Descripción]
-
-### Predicciones Kaggle (`02_outputs/predictions/`)
-
-- `[nombre_del_modelo_hiperparametros].csv` – Predicciones para Kaggle
-
+Ejemplos de nombres:
+- `boxplot_income.png`
+- `estimation_age_income_profile.tex`
+- `random_forest_ntrees500.csv`
 
 ---
 
-### 3.4 Software / environment
+### Software / entorno
 
-Debe permitir que otro reproduzca el entorno.
-
+El README debe incluir la información mínima necesaria para reproducir el entorno computacional.
 ```markdown
 ## Software
 - R version
@@ -151,10 +153,22 @@ Opcional pero recomendado:
 
 * `renv`, `sessionInfo()`, o lista explícita de paquetes.
 
+---
+
+
+## Sugerencias
+
+### Incluir `.gitignore`
+Es recomendable incluir un archivo `.gitignore` para evitar subir archivos temporales, credenciales o datos pesados.
+
+### Comentarios de alto nivel
+Es recomendable documentar brevemente al inicio de cada script qué hace y qué outputs genera.
+
+
 
 ---
 
-## 5. Qué NO hacer
+## Qué NO hacer
 
 🚫 Guardar resultados manuales
 
@@ -168,22 +182,16 @@ Opcional pero recomendado:
 
 ---
 
-## 6. Checklist antes de entregar
 
-Todo repo debe pasar este test:
+## Checklist antes de entregar
+
+Todo repositorio debe cumplir lo siguiente:
 
 * [ ] Clono el repo en una carpeta vacía
-* [ ] Abro R
+* [ ] Abro R sin objetos en el environment
 * [ ] Corro `source("01_code/00_rundirectory.R")`
-* [ ] Se generan outputs sin errores
-* [ ] El README explica claramente qué pasó
+* [ ] El código corre sin errores ni intervención manual
+* [ ] Se generan automáticamente figuras, tablas y/o predicciones
+* [ ] El README permite entender qué se generó y cómo reproducirlo
 
-Si algo falla → **el repo no es reproducible**.
-
-## 7. Sugerencias
-
-### 7.1 Incluir `.gitignore`
-
-Es recomendable incluir un archivo `.gitignore` en tu repositorio. Esto mantiene el repo limpio y evita subir archivos temporales, credenciales, o datos pesados.
-
-
+Si alguno de estos puntos falla → **el repo no es reproducible**.
