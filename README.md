@@ -33,7 +33,15 @@ Cada script debe hacer **una cosa bien definida**. No mezclar limpieza de datos,
 - 🚫 `01_analysis_section2.R` – ¿qué hace exactamente?
 - 🚫 `01_models.R` – demasiado genérico
 
+Cuando el mismo bloque de código aparece repetido en varios scripts, es recomendable **reescribirlo como una función** y reutilizarla. Copiar y pegar suele introducir inconsistencias, dificulta el mantenimiento del código y va contra buenas prácticas de estilo.
+
+Una opción simple es centralizar estas funciones, bien documentadas, en una carpeta dentro de `01_code/`, por ejemplo:
+
+- `01_code/functions/`
+
+
 ### Documentación como defensa de decisiones
+
 El código debe estar **documentado para defender decisiones**, no solo para explicar sintaxis.
 
 Cada decisión metodológica, económica, o estadística debe estar explicada o justificada en comentarios.
@@ -53,7 +61,7 @@ Cada decisión metodológica, económica, o estadística debe estar explicada o 
 Todos los problem sets deben respetar esta estructura base:
 
 ```
-BDML-PS1/
+BDML-PSXX/
 │
 ├── README.md
 │
@@ -159,9 +167,11 @@ Opcional pero recomendado:
 ## Sugerencias
 
 ### Incluir `.gitignore`
+
 Es recomendable incluir un archivo `.gitignore` para evitar subir archivos temporales, credenciales o datos pesados.
 
 ### Comentarios de alto nivel
+
 Es recomendable documentar brevemente al inicio de cada script qué hace y qué outputs genera.
 
 
